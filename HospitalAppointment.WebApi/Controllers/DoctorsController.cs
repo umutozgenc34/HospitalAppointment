@@ -1,4 +1,5 @@
 ﻿using HospitalAppointment.WebApi.Models;
+using HospitalAppointment.WebApi.Models.Dtos.Doctors.Request;
 using HospitalAppointment.WebApi.Models.Enums;
 using HospitalAppointment.WebApi.Services.Abstracts;
 using Microsoft.AspNetCore.Http;
@@ -25,9 +26,9 @@ public class DoctorsController : ControllerBase
     }
 
     [HttpPost("add")]
-    public IActionResult Add(Doctor doctor)
+    public IActionResult Add(AddDoctorRequestDto dto)
     {
-        var result = _doctorService.AddDoctor(doctor);
+        var result = _doctorService.AddDoctor(dto);
         return Ok(result);
     }
 

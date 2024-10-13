@@ -1,4 +1,6 @@
 ﻿using HospitalAppointment.WebApi.Models;
+using HospitalAppointment.WebApi.Models.Dtos.Doctors.Response;
+using HospitalAppointment.WebApi.Models.Dtos.Doctors.Request;
 using HospitalAppointment.WebApi.Models.Enums;
 using HospitalAppointment.WebApi.Repository.Abstract;
 using HospitalAppointment.WebApi.Services.Abstracts;
@@ -14,14 +16,15 @@ public class DoctorService : IDoctorService
     {
         _doctorRepository = doctorRepository;
     }
-    public Doctor AddDoctor(Doctor user)
+    public Doctor AddDoctor(AddDoctorRequestDto requestDto)
     {
+        Doctor doctor = (Doctor)requestDto; // Explicit donusum
         // doktor ve randevu alınırken isim alanları boş olamaz kuralı
-        if (string.IsNullOrWhiteSpace(user.Name))
+        if (string.IsNullOrWhiteSpace(requestDto.Name))
         {
             throw new ArgumentException("Doktor ismi boş bırakılamaz.");
         }
-        return _doctorRepository.Add(user);
+        return _doctorRepository.Add(doctor);
     }
 
     public Doctor DeleteDoctor(int id)
@@ -29,9 +32,10 @@ public class DoctorService : IDoctorService
         return _doctorRepository.Delete(id);
     }
 
-    public List<Doctor> GetAllDoctors()
+    public List<DoctorResponseDto> GetAllDoctors()
     {
-        return _doctorRepository.GetAll();
+        var doctors = _doctorRepository.GetAll();
+        return doctors.Select(doctor => (DoctorResponseDto)doctor).ToList(); //implicit donusum
     }
 
     public Doctor? GetDoctorById(int id)

@@ -1,4 +1,6 @@
 ﻿using HospitalAppointment.WebApi.Models;
+using HospitalAppointment.WebApi.Models.Dtos.Appointments.Request;
+using HospitalAppointment.WebApi.Models.Dtos.Appointments.Response;
 using HospitalAppointment.WebApi.Repository.Abstract;
 using HospitalAppointment.WebApi.Services.Abstracts;
 
@@ -14,26 +16,27 @@ namespace HospitalAppointment.WebApi.Services.Concretes
             _doctorRepository = doctorRepository;
         }
 
-        public Appointment AddAppointment(Appointment user)
+        public Appointment AddAppointment(AddAppointmentRequestDto dto)
         {
+            Appointment appointment = (Appointment)dto; // Explicit donusum
             // randevu alınırken hangi doktordan alındığı bilinmelidir kuralı
-            var doctor = _doctorRepository.GetById(user.DoctorId);
+            var doctor = _doctorRepository.GetById(appointment.DoctorId);
             if (doctor == null)
             {
                 throw new ArgumentException("Randevu için geçerli bir doktor seçilmesi gereklidir.");
             }
             //randevu tarihi 3 gün kuralı 
-            if (user.AppointmentDate < DateTime.Now.AddDays(3))
+            if (appointment.AppointmentDate < DateTime.Now.AddDays(3))
             {
                 throw new ArgumentException("Randevu tarihi en az bugünden 3 gün sonra olmalıdır.");
             }
             // doktor ve randevu alınırken isim alanları boş olamaz kuralı
-            if (string.IsNullOrWhiteSpace(user.PatientName))
+            if (string.IsNullOrWhiteSpace(appointment.PatientName))
             {
                 throw new ArgumentException("Hasta adı boş olamaz.");
             }
 
-            return _appointmentRepository.Add(user);
+            return _appointmentRepository.Add(appointment);
         }
 
         public Appointment DeleteAppointment(Guid id)
@@ -41,9 +44,10 @@ namespace HospitalAppointment.WebApi.Services.Concretes
             return _appointmentRepository.Delete(id);
         }
 
-        public List<Appointment> GetAllAppointments()
+        public List<AppointmentResponseDto> GetAllAppointments()
         {
-            return _appointmentRepository.GetAll();
+            var appointments = _appointmentRepository.GetAll();
+            return appointments.Select(appointment => (AppointmentResponseDto)appointment).ToList(); // Implicit donusum
         }
 
         public Appointment? GetAppointmentById(Guid id)
