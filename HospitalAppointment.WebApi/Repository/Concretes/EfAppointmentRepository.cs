@@ -53,4 +53,17 @@ public class EfAppointmentRepository : IAppointmentRepository
         _context.SaveChanges();
         return user;
     }
+
+    public void DeleteExpiredAppointments()
+    {
+        var expiredAppointments = _context.Appointments
+            .Where(a => a.AppointmentDate < DateTime.Now)
+            .ToList();
+
+        if (expiredAppointments.Any())
+        {
+            _context.Appointments.RemoveRange(expiredAppointments);
+            _context.SaveChanges();
+        }
+    }
 }

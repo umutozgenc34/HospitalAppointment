@@ -7,13 +7,32 @@ namespace HospitalAppointment.WebApi.Services.Concretes
     public class AppointmentService : IAppointmentService
     {
         private  IAppointmentRepository _appointmentRepository;
-        public AppointmentService(IAppointmentRepository appointmentRepository)
+        private IDoctorRepository _doctorRepository;
+        public AppointmentService(IAppointmentRepository appointmentRepository , IDoctorRepository doctorRepository)
         {
             _appointmentRepository = appointmentRepository;
+            _doctorRepository = doctorRepository;
         }
 
         public Appointment AddAppointment(Appointment user)
         {
+            // randevu alınırken hangi doktordan alındığı bilinmelidir kuralı
+            var doctor = _doctorRepository.GetById(user.DoctorId);
+            if (doctor == null)
+            {
+                throw new ArgumentException("Randevu için geçerli bir doktor seçilmesi gereklidir.");
+            }
+            //randevu tarihi 3 gün kuralı 
+            if (user.AppointmentDate < DateTime.Now.AddDays(3))
+            {
+                throw new ArgumentException("Randevu tarihi en az bugünden 3 gün sonra olmalıdır.");
+            }
+            // doktor ve randevu alınırken isim alanları boş olamaz kuralı
+            if (string.IsNullOrWhiteSpace(user.PatientName))
+            {
+                throw new ArgumentException("Hasta adı boş olamaz.");
+            }
+
             return _appointmentRepository.Add(user);
         }
 
@@ -39,7 +58,35 @@ namespace HospitalAppointment.WebApi.Services.Concretes
 
         public Appointment UpdateAppointment(Appointment user)
         {
+            // randevu alınırken hangi doktordan alındığı bilinmelidir kuralı
+            var doctor = _doctorRepository.GetById(user.DoctorId);
+            if (doctor == null)
+            {
+                throw new ArgumentException("Randevu için geçerli bir doktor seçilmesi gereklidir.");
+            }
+            //randevu tarihi 3 gün kuralı
+            if (user.AppointmentDate < DateTime.Now.AddDays(3))
+            {
+                throw new ArgumentException("Randevu tarihi en az bugünden 3 gün sonra olmalıdır.");
+            }
+
+            // doktor ve randevu alınırken isim alanları boş olamaz kuralı
+            if (string.IsNullOrWhiteSpace(user.PatientName))
+            {
+                throw new ArgumentException("Hasta adı boş olamaz.");
+            }
+            // Randevu alınan doktorun mevcut randevu sayısını kontrol et kuralı
+            var existingAppointmentsCount = _appointmentRepository.GetAppointmentsByDoctorId(user.DoctorId).Count;
+            if (existingAppointmentsCount >= 10)
+            {
+                throw new InvalidOperationException("Bu doktora ait maksimum randevu sayısına ulaşıldı. (10 randevu)");
+            }
             return _appointmentRepository.Update(user);
+        }
+
+        public void DeleteExpiredAppointments()
+        {
+            _appointmentRepository.DeleteExpiredAppointments();
         }
     }
 }

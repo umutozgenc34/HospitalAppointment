@@ -13,4 +13,5 @@ public interface IAppointmentService
     Appointment UpdateAppointment(Appointment user);
     Appointment DeleteAppointment(Guid id);
     List<Appointment> GetAppointmentsByDoctorId(int doctorId);
+    void DeleteExpiredAppointments();
 }

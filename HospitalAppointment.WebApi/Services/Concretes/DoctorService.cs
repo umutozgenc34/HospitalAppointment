@@ -2,6 +2,7 @@
 using HospitalAppointment.WebApi.Models.Enums;
 using HospitalAppointment.WebApi.Repository.Abstract;
 using HospitalAppointment.WebApi.Services.Abstracts;
+using System.Numerics;
 
 namespace HospitalAppointment.WebApi.Services.Concretes;
 
@@ -15,6 +16,11 @@ public class DoctorService : IDoctorService
     }
     public Doctor AddDoctor(Doctor user)
     {
+        // doktor ve randevu alınırken isim alanları boş olamaz kuralı
+        if (string.IsNullOrWhiteSpace(user.Name))
+        {
+            throw new ArgumentException("Doktor ismi boş bırakılamaz.");
+        }
         return _doctorRepository.Add(user);
     }
 
@@ -40,6 +46,11 @@ public class DoctorService : IDoctorService
 
     public Doctor UpdateDoctor(Doctor user)
     {
+        // doktor ve randevu alınırken isim alanları boş olamaz kuralı
+        if (string.IsNullOrWhiteSpace(user.Name))
+        {
+            throw new ArgumentException("Doktor ismi boş bırakılamaz.");
+        }
         return _doctorRepository.Update(user);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using HospitalAppointment.WebApi.Models;
 using HospitalAppointment.WebApi.Services.Abstracts;
+using HospitalAppointment.WebApi.Services.Concretes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +32,7 @@ public class AppointmentsController : ControllerBase
     }
 
     [HttpGet("getbyid")]
-    public IActionResult GetById (Guid id)
+    public IActionResult GetById(Guid id)
     {
         var result = _appointmentsService.GetAppointmentById(id);
         return Ok(result);
@@ -51,9 +52,20 @@ public class AppointmentsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("getbydoctorid")]
     public IActionResult GetAppointmentByDoctorId(int doctorId)
     {
         var result = _appointmentsService.GetAppointmentsByDoctorId(doctorId);
         return Ok(result);
     }
+
+    [HttpDelete("delete-expired")]
+    public IActionResult DeleteExpiredAppointments()
+    {
+        _appointmentsService.DeleteExpiredAppointments();
+        return Ok("Zamanı geçen randevular başarıyla silindi");
+    }
+
+
+
 }

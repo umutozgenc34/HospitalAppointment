@@ -58,4 +58,5 @@ public class DoctorsController : ControllerBase
         var result = _doctorService.GetDoctorsByBranch(branch);
         return Ok(result);
     }
+
 }
