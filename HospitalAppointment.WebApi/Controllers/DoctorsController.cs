@@ -21,7 +21,11 @@ public class DoctorsController : ControllerBase
     [HttpGet("getall")]
     public IActionResult GetAll()
     {
-        var result = _doctorService.GetAllDoctors();
+        var result = _doctorService.GetAll();
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
         return Ok(result);
     }
 

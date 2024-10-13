@@ -3,13 +3,14 @@ using HospitalAppointment.WebApi.Models.Dtos.Doctors.Response;
 using HospitalAppointment.WebApi.Models.Dtos.Doctors.Request;
 using HospitalAppointment.WebApi.Models.Enums;
 using System.Security.Cryptography;
+using HospitalAppointment.WebApi.Models.ReturnModels;
 
 namespace HospitalAppointment.WebApi.Services.Abstracts;
 
 public interface IDoctorService
 {
     Doctor? GetDoctorById(int id);
-    List<DoctorResponseDto> GetAllDoctors();
+    ReturnModel<List<DoctorResponseDto>> GetAll();
 
     Doctor AddDoctor(AddDoctorRequestDto requestDto);
     Doctor UpdateDoctor(Doctor user);

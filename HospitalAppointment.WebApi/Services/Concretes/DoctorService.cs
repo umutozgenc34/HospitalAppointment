@@ -5,6 +5,7 @@ using HospitalAppointment.WebApi.Models.Enums;
 using HospitalAppointment.WebApi.Repository.Abstract;
 using HospitalAppointment.WebApi.Services.Abstracts;
 using System.Numerics;
+using HospitalAppointment.WebApi.Models.ReturnModels;
 
 namespace HospitalAppointment.WebApi.Services.Concretes;
 
@@ -32,10 +33,18 @@ public class DoctorService : IDoctorService
         return _doctorRepository.Delete(id);
     }
 
-    public List<DoctorResponseDto> GetAllDoctors()
+    // return model kullanımı
+    public ReturnModel<List<DoctorResponseDto>> GetAll()
     {
-        var doctors = _doctorRepository.GetAll();
-        return doctors.Select(doctor => (DoctorResponseDto)doctor).ToList(); //implicit donusum
+        try
+        {
+            var doctors = _doctorRepository.GetAll();
+            return new ReturnModel<List<DoctorResponseDto>>(true, "Doktorlar başarıyla getirildi.", doctors.Select(d => (DoctorResponseDto)d).ToList());
+        }
+        catch (Exception ex)
+        {
+            return new ReturnModel<List<DoctorResponseDto>>(false, $"Bir hata oluştu: {ex.Message}", null);
+        }
     }
 
     public Doctor? GetDoctorById(int id)

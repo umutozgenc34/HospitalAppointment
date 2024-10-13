@@ -1,4 +1,5 @@
-﻿using HospitalAppointment.WebApi.Models;
+﻿using HospitalAppointment.WebApi.Exceptions;
+using HospitalAppointment.WebApi.Models;
 using HospitalAppointment.WebApi.Models.Dtos.Appointments.Request;
 using HospitalAppointment.WebApi.Models.Dtos.Appointments.Response;
 using HospitalAppointment.WebApi.Repository.Abstract;
@@ -23,17 +24,17 @@ namespace HospitalAppointment.WebApi.Services.Concretes
             var doctor = _doctorRepository.GetById(appointment.DoctorId);
             if (doctor == null)
             {
-                throw new ArgumentException("Randevu için geçerli bir doktor seçilmesi gereklidir.");
+                throw new NotFoundException("Randevu için geçerli bir doktor seçilmesi gereklidir.");
             }
             //randevu tarihi 3 gün kuralı 
             if (appointment.AppointmentDate < DateTime.Now.AddDays(3))
             {
-                throw new ArgumentException("Randevu tarihi en az bugünden 3 gün sonra olmalıdır.");
+                throw new ValidationException("Randevu tarihi en az bugünden 3 gün sonra olmalıdır.");
             }
             // doktor ve randevu alınırken isim alanları boş olamaz kuralı
             if (string.IsNullOrWhiteSpace(appointment.PatientName))
             {
-                throw new ArgumentException("Hasta adı boş olamaz.");
+                throw new ValidationException("Hasta adı boş olamaz.");
             }
 
             return _appointmentRepository.Add(appointment);
@@ -52,7 +53,12 @@ namespace HospitalAppointment.WebApi.Services.Concretes
 
         public Appointment? GetAppointmentById(Guid id)
         {
-            return _appointmentRepository.GetById(id);
+            var appointment = _appointmentRepository.GetById(id);
+            if (appointment == null)
+            {
+                throw new NotFoundException("Randevu bulunamadı."); 
+            }
+            return appointment;
         }
 
         public List<Appointment> GetAppointmentsByDoctorId(int doctorId)
@@ -66,18 +72,18 @@ namespace HospitalAppointment.WebApi.Services.Concretes
             var doctor = _doctorRepository.GetById(user.DoctorId);
             if (doctor == null)
             {
-                throw new ArgumentException("Randevu için geçerli bir doktor seçilmesi gereklidir.");
+                throw new NotFoundException("Randevu için geçerli bir doktor seçilmesi gereklidir.");
             }
             //randevu tarihi 3 gün kuralı
             if (user.AppointmentDate < DateTime.Now.AddDays(3))
             {
-                throw new ArgumentException("Randevu tarihi en az bugünden 3 gün sonra olmalıdır.");
+                throw new ValidationException("Randevu tarihi en az bugünden 3 gün sonra olmalıdır.");
             }
 
             // doktor ve randevu alınırken isim alanları boş olamaz kuralı
             if (string.IsNullOrWhiteSpace(user.PatientName))
             {
-                throw new ArgumentException("Hasta adı boş olamaz.");
+                throw new ValidationException("Hasta adı boş olamaz.");
             }
             // Randevu alınan doktorun mevcut randevu sayısını kontrol et kuralı
             var existingAppointmentsCount = _appointmentRepository.GetAppointmentsByDoctorId(user.DoctorId).Count;
